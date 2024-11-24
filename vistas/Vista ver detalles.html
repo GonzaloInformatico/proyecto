@@ -1,0 +1,510 @@
+<html><head><base href="." /><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detalle de Solicitud</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+:root {
+  --primary: #2962ff;
+  --secondary: #455a64;
+  --success: #43a047;
+  --light: #f5f5f5;
+  --dark: #212121;
+}
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.navbar {
+  width: 250px;
+  background: #455a64;
+  color: white;
+  padding-top: 60px;
+  transition: all 0.3s ease;
+  position: fixed;
+  height: 100vh;
+}
+
+.navbar.collapsed {
+  width: 60px;
+}
+
+.nav-item {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.nav-item:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.nav-item i {
+  margin-right: 1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.nav-text {
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.collapsed .nav-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 100;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #455a64;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.user-section {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.username {
+  font-weight: 500;
+}
+
+.config-dropdown {
+  position: relative;
+}
+
+.config-btn {
+  background: none;
+  border: none;
+  color: #455a64;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.config-btn:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.config-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  min-width: 200px;
+  padding: 0.5rem 0;
+  display: none;
+  z-index: 1000;
+}
+
+.config-dropdown.active .config-menu {
+  display: block;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--dark);
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  gap: 0.75rem;
+}
+
+.config-item:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.config-item i {
+  width: 20px;
+}
+
+.main-content {
+  margin-left: 250px;
+  margin-top: 60px;
+  padding: 20px;
+  flex: 1;
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.collapsed {
+  margin-left: 60px;
+}
+
+.detail-page {
+  max-width: 800px;
+  margin: 20px auto;
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.detail-section {
+  margin-bottom: 2rem;
+}
+
+.detail-section h2 {
+  color: var(--dark);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--light);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.detail-description {
+  background: var(--light);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-back {
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  margin-bottom: 2rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-inprocess {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status-closed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  padding: 2rem;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--secondary);
+}
+
+.rejection-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+#rejection-reason {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.btn-confirm-reject {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-cancel-reject {
+  background-color: #6c757d;
+  color: white;
+}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-item">
+    <i class="fas fa-list"></i>
+    <span class="nav-text">Solicitudes</span>
+  </div>
+  <a href="solicitudes.html?status=pendiente" class="nav-item sub-item">
+    <i class="fas fa-clock"></i>
+    <span class="nav-text">Pendientes</span>
+  </a>
+  <a href="solicitudes.html?status=proceso" class="nav-item sub-item">
+    <i class="fas fa-spinner"></i>
+    <span class="nav-text">En Proceso</span>
+  </a>
+  <a href="solicitudes.html?status=cerrado" class="nav-item sub-item">
+    <i class="fas fa-check-circle"></i>
+    <span class="nav-text">Cerrados</span>
+  </a>
+</nav>
+
+<div class="top-bar">
+  <button class="toggle-btn">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="user-section">
+    <span class="username">Juan Pérez</span>
+    <div class="config-dropdown">
+      <button class="config-btn">
+        <i class="fas fa-cog"></i>
+      </button>
+      <div class="config-menu">
+        <a href="#" class="config-item">
+          <i class="fas fa-bell"></i>
+          Notificaciones
+        </a>
+        <a href="#" class="config-item">
+          <i class="fas fa-key"></i>
+          Cambiar Contraseña
+        </a>
+        <a href="#" class="config-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Cerrar Sesión
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+  <a href="solicitudes.html" class="btn-back">
+    <i class="fas fa-arrow-left"></i>
+    Volver
+  </a>
+  
+  <div class="detail-page">
+    <div class="detail-section">
+      <h2>Información de la Solicitud</h2>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">ID Solicitud</div>
+          <div class="detail-value" id="requestId"></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Estado</div>
+          <div class="detail-value">
+            <span class="status-badge status-pending" id="requestStatus"></span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Fecha de Solicitud</div>
+          <div class="detail-value" id="requestDate"></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Categoría</div>
+          <div class="detail-value" id="requestCategory"></div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h2>Descripción</h2>
+        <div class="detail-description" id="requestDescription"></div>
+      </div>
+      
+      <div class="detail-actions">
+        <button class="action-btn btn-accept"><i class="fas fa-check"></i> Aceptar</button>
+        <button class="action-btn btn-reject"><i class="fas fa-times"></i> Rechazar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop">
+  <div class="modal">
+    <button class="modal-close">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="modal-header">
+      <h2 class="modal-title"></h2>
+    </div>
+    <div class="modal-body">
+      <div class="modal-details">
+      </div>
+      <div class="modal-description"></div>
+      <div class="modal-actions">
+        <button class="action-btn btn-accept"><i class="fas fa-check"></i> Aceptar</button>
+        <button class="action-btn btn-reject"><i class="fas fa-times"></i> Rechazar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rejection-modal-backdrop">
+  <div class="modal">
+    <button class="modal-close">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="modal-header">
+      <h2 class="modal-title">Motivo de Rechazo</h2>
+    </div>
+    <div class="modal-body">
+      <textarea id="rejection-reason" rows="4" placeholder="Ingrese el motivo del rechazo..."></textarea>
+      <div class="modal-actions">
+        <button class="action-btn btn-confirm-reject">Confirmar Rechazo</button>
+        <button class="action-btn btn-cancel-reject">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Get request ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestId = urlParams.get('id');
+
+  // Fetch and display request details
+  // This is a mock implementation - replace with actual API call
+  function loadRequestDetails() {
+    // Mock data - replace with actual API data
+    const requestData = {
+      id: requestId,
+      title: "Reparación de Luminaria en Oficina 201",
+      status: "Pendiente",
+      date: "15/05/2023",
+      category: "Electricidad",
+      description: "Luminaria del techo parpadea constantemente y necesita reemplazo urgente."
+    };
+
+    document.getElementById('requestId').textContent = requestData.id;
+    document.getElementById('requestStatus').textContent = requestData.status;
+    document.getElementById('requestDate').textContent = requestData.date;
+    document.getElementById('requestCategory').textContent = requestData.category;
+    document.getElementById('requestDescription').textContent = requestData.description;
+  }
+
+  loadRequestDetails();
+
+  // Accept button handler
+  document.querySelector('.btn-accept').addEventListener('click', function() {
+    if (confirm('¿Está seguro que desea aceptar esta solicitud?')) {
+      alert('Solicitud aceptada exitosamente');
+      window.location.href = 'solicitudes.html';
+    }
+  });
+
+  // Reject button handler
+  document.querySelector('.btn-reject').addEventListener('click', function() {
+    document.querySelector('.rejection-modal-backdrop').style.display = 'flex';
+  });
+
+  // Confirm rejection handler
+  document.querySelector('.btn-confirm-reject').addEventListener('click', function() {
+    const reason = document.querySelector('#rejection-reason').value.trim();
+    if (!reason) {
+      alert('Por favor ingrese un motivo de rechazo');
+      return;
+    }
+    alert('Solicitud rechazada: ' + reason);
+    window.location.href = 'solicitudes.html';
+  });
+
+  // Cancel rejection handler
+  document.querySelector('.btn-cancel-reject').addEventListener('click', function() {
+    document.querySelector('.rejection-modal-backdrop').style.display = 'none';
+    document.querySelector('#rejection-reason').value = '';
+  });
+
+  // Modal close button handler
+  document.querySelector('.rejection-modal-backdrop .modal-close').addEventListener('click', function() {
+    document.querySelector('.rejection-modal-backdrop').style.display = 'none';
+    document.querySelector('#rejection-reason').value = '';
+  });
+});
+</script>
+</body></html>
