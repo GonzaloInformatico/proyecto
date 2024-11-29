@@ -1,3 +1,17 @@
+<?php
+// Verificar si la sesión ya está activa antes de intentar iniciarla
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION["Nombre"])) {
+    header("Location: index.php");
+    exit();
+}
+$nombre = $_SESSION["Nombre"];
+$apellido = $_SESSION["Apellido"];
+
+?>
+
 <html><head><base href="." /><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mis Solicitudes de Mantención</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -20,7 +34,7 @@
     <i class="fas fa-bars"></i>
   </button>
   <div class="user-section">
-    <span class="username">Juan Pérez</span>
+    <span class="username"><?php echo $nombre, " ", $apellido ?></span>
     <div class="config-dropdown">
       <button class="config-btn">
         <i class="fas fa-cog"></i>
@@ -34,8 +48,8 @@
           <i class="fas fa-key"></i>
           Cambiar Contraseña
         </a>
-        <a href="#" class="config-item">
-          <i class="fas fa-sign-out-alt"></i>
+        <a href="salir.php" class="config-item" >
+          <i class="fas fa-sign-out-alt" ></i>
           Cerrar Sesión
         </a>
       </div>
@@ -265,7 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Cambiar contraseña');
           break;
         case 'Cerrar Sesión':
-          alert('Sesión cerrada');
+          
+          window.location.href = '../salir.php';
+          
           break;
       }
       
