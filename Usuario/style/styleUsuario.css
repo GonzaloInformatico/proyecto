@@ -245,15 +245,60 @@ body {
     font-weight: 500;
 }
 
-.status-pending {
+/* Pendiente */
+.status-Pendiente {
     background-color: #fff3e0;
     color: #e65100;
 }
 
-.status-in-progress {
+/* En proceso */
+.status-En_proceso {
     background-color: #e3f2fd;
     color: #1565c0;
 }
+
+/* Cotizando */
+.status-Cotizando {
+    background-color: #ede7f6;
+    color: #512da8;
+}
+
+/* Cotizado */
+.status-Cotizado {
+    background-color: #fce4ec;
+    color: #d81b60;
+}
+
+/* En ejecución */
+.status-En_ejecución {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+/* Pre-entrega */
+.status-Pre_entrega {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* En Evaluación */
+.status-En_Evaluación {
+    background-color: #fff8e1;
+    color: #ff8f00;
+}
+
+/* Ejecución de observaciones */
+.status-Ejecución_de_observaciones {
+    background-color: #edeff7;
+    color: #1e88e5;
+}
+
+/* Cerrado */
+.statusCerrado {
+    background-color: #eceff1;
+    color: #37474f;
+}
+
 
 .request-details {
     display: grid;
@@ -359,3 +404,25 @@ body {
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
+
+.modal-image-container {
+    width: 100%;
+    height: 300px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modal-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  .no-image {
+    color: #666;
+    font-size: 0.875rem;
+  }

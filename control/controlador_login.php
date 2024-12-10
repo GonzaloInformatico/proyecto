@@ -36,7 +36,7 @@ try {
                 exit();
             }
             if ($fila["Perfil_idPerfil"] == 2) {
-                header("Location: ../Encargado.php");
+                header("Location: ../encargado/principal.php");
                 exit();
             }
             if ($fila["Perfil_idPerfil"] == 3) {

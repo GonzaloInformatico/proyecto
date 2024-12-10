@@ -10,6 +10,9 @@ if (!isset($_SESSION["Nombre"])) {
 $nombre = htmlspecialchars($_SESSION["Nombre"]);
 $apellido = htmlspecialchars($_SESSION["Apellido"]);
 $id = htmlspecialchars($_SESSION["id"]);
+
+require_once "../control/query.php";
+$contiene = new query();
 ?>
 
 <html>
@@ -25,37 +28,8 @@ $id = htmlspecialchars($_SESSION["id"]);
 
 <body>
   <?php include('navbar.php'); ?>
+  <?php include('barra.php'); ?>
 
-  <div class="top-bar">
-    <button class="toggle-btn">
-      <i class="fas fa-bars"></i>
-    </button>
-    <a class="navbar-brand" href="#">
-      <img src="../img/SITRANS3.png" alt="Logo" width="150" height="27" class="d-inline-block align-text-top">
-    </a>
-    <div class="user-section">
-      <span class="username"><?php echo $nombre . " " . $apellido; ?></span>
-      <div class="config-dropdown">
-        <button class="config-btn">
-          <i class="fas fa-cog"></i>
-        </button>
-        <div class="config-menu">
-          <a href="#" class="config-item">
-            <i class="fas fa-bell"></i>
-            Notificaciones
-          </a>
-          <a href="#" class="config-item">
-            <i class="fas fa-key"></i>
-            Cambiar Contraseña
-          </a>
-          <a href="salir.php" class="config-item">
-            <i class="fas fa-sign-out-alt"></i>
-            Cerrar Sesión
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="main-content">
     <div class="request-list">
@@ -65,8 +39,12 @@ $id = htmlspecialchars($_SESSION["id"]);
           <label for="status-filter">Estado:</label>
           <select id="status-filter">
             <option value="">Todos</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="En Proceso">En Proceso</option>
+            <?php
+        $lista = $contiene->Estados();
+        foreach ($lista as $fila) {
+        ?>
+            <option value="<?php echo $fila["NombreEstado"]  ?>"><?php echo $fila["NombreEstado"]  ?></option>
+            <?php } ?>
           </select>
         </div>
 
@@ -79,11 +57,12 @@ $id = htmlspecialchars($_SESSION["id"]);
           <label for="category-filter">Categoría:</label>
           <select id="category-filter">
             <option value="">Todas</option>
-            <option value="Electricidad">Electricidad</option>
-            <option value="Baño">Baño</option>
-            <option value="Piso">Piso</option>
-            <option value="Infraestructura">Infraestructura</option>
-            <option value="Bodega">Bodega</option>
+            <?php
+        $lista = $contiene->Categoria();
+        foreach ($lista as $fila) {
+        ?>
+            <option value="<?php echo $fila["NombreCategoria"]  ?>"><?php echo $fila["NombreCategoria"]  ?></option>
+            <?php } ?>
           </select>
         </div>
 
@@ -91,19 +70,18 @@ $id = htmlspecialchars($_SESSION["id"]);
       </div>
 
       <?php
-        require_once "../controlLogin/query.php";
-        $contiene = new query();
         $lista = $contiene->cargarrequerimiento($id);
         foreach ($lista as $fila) {
           $fecha_str= $fila["fecha"] ;
           $fecha = new DateTime($fecha_str);
-          $formattedDate = $fecha->format('d-m-Y');
+          $formattedDate = $fecha->format('d/m/Y');
+          $imagePath = $fila["Imagen"];
         ?>
       <!-- Request-->
       <div class="request-card">
         <div class="request-header">
           <h3 class="request-title"><?php echo $fila["Titulo"]  ?></h3>
-          <span class="request-status status-pending"><?php echo $fila["NombreEstado"]  ?></span>
+          <span class="request-status status-<?php echo str_replace(" ","_",$fila["NombreEstado"] )  ?>"><?php echo $fila["NombreEstado"]  ?></span>
         </div>
         <div class="request-details">
           <div class="detail-item">
@@ -112,7 +90,7 @@ $id = htmlspecialchars($_SESSION["id"]);
           </div>
           <div class="detail-item">
             <div class="detail-label">Fecha</div>
-            <div class="detail-value"><?php  echo $formattedDate ?></div>
+            <div class="detail-value"><?php  echo (string)$formattedDate ?></div>
           </div>
           <div class="detail-item">
             <div class="detail-label">ID Solicitud</div>
@@ -121,7 +99,7 @@ $id = htmlspecialchars($_SESSION["id"]);
         </div>
         <p class="request-description"><?php echo $fila["Descripcion"]  ?></p>
         <div class="request-actions">
-          <button class="action-btn btn-view"><i class="fas fa-eye"></i> Ver Detalles</button>
+        <button class="action-btn btn-view" data-image="<?php echo $imagePath ?>"><i class="fas fa-eye"></i> Ver Detalles</button>
         </div>
       </div>
       <?php } ?>
@@ -143,8 +121,11 @@ $id = htmlspecialchars($_SESSION["id"]);
         <div class="modal-details">
         </div>
         <div class="modal-description"></div>
+        <div class="modal-image-container">
+        <img src="" class="modal-image" alt="No hay imagen disponible"> <!-- Etiqueta de imagen agregada -->
       </div>
     </div>
+  </div>
   </div>
 
   <script>
@@ -205,6 +186,7 @@ $id = htmlspecialchars($_SESSION["id"]);
           const date = requestCard.querySelector('.detail-item:nth-child(2) .detail-value').textContent;
           const id = requestCard.querySelector('.detail-item:nth-child(3) .detail-value').textContent;
           const description = requestCard.querySelector('.request-description').textContent;
+          const imagePath = btn.getAttribute('data-image'); // Usa data attribute para la imagen
 
           // Populate modal
           const modal = document.querySelector('.modal');
@@ -231,6 +213,7 @@ $id = htmlspecialchars($_SESSION["id"]);
         <div class="detail-label">Descripción</div>
         <p>${description}</p>
       `;
+      modal.querySelector('.modal-image').src = imagePath || './path-to-default-image.jpg'; // Añadir una ruta de imagen por defecto si imagePath está vacío
 
           // Show modal
           document.querySelector('.modal-backdrop').style.display = 'flex';
@@ -249,6 +232,51 @@ $id = htmlspecialchars($_SESSION["id"]);
         document.getElementById('category-filter').value = '';
       });
     });
+
+     // funcionalidad de los filtros 
+  const statusFilter = document.getElementById('status-filter');
+  const dateFilter = document.getElementById('date-filter');
+  const categoryFilter = document.getElementById('category-filter');
+  const clearFiltersBtn = document.getElementById('clear-filters');
+  const requestCards = document.querySelectorAll('.request-card');
+
+  function applyFilters() {
+    requestCards.forEach(card => {
+      const status = card.querySelector('.request-status').textContent;
+      const category = card.querySelector('.detail-value').textContent;
+      const dateStr = card.querySelector('.detail-item:nth-child(2) .detail-value').textContent;
+      
+      // Convert date string to comparable format
+      const cardDate = new Date(dateStr.split('/').reverse().join('-'));
+      const filterDate = dateFilter.value ? new Date(dateFilter.value) : null;
+
+      const statusMatch = !statusFilter.value || status === statusFilter.value;
+      const categoryMatch = !categoryFilter.value || category === categoryFilter.value;
+      const dateMatch = !filterDate || 
+        (cardDate.getFullYear() === filterDate.getFullYear() && 
+         cardDate.getMonth() === filterDate.getMonth() && 
+         cardDate.getDate() === filterDate.getDate());
+
+      if (statusMatch && categoryMatch && dateMatch) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // Add event listeners for filters
+  statusFilter.addEventListener('change', applyFilters);
+  dateFilter.addEventListener('change', applyFilters);
+  categoryFilter.addEventListener('change', applyFilters);
+
+  // Clear filters functionality
+  clearFiltersBtn.addEventListener('click', () => {
+    statusFilter.value = '';
+    dateFilter.value = '';
+    categoryFilter.value = '';
+    requestCards.forEach(card => card.style.display = '');
+  });
   </script>
 
 </body>

@@ -9,13 +9,12 @@ if (!isset($_SESSION["Nombre"])) {
 }
 $nombre = $_SESSION["Nombre"];
 $apellido = $_SESSION["Apellido"];
-
 ?>
 
-<html>
+<!DOCTYPE html>
+<html lang="es">
 
 <head>
-    <base href="." />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Solicitudes de Mantención</title>
@@ -26,60 +25,32 @@ $apellido = $_SESSION["Apellido"];
 
 <body>
     <?php include('navbar.php'); ?>
-
-    <div class="top-bar">
-        <button class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-        <a class="navbar-brand" href="#">
-            <img src="../img/SITRANS3.png" alt="Logo" width="150" height="27" class="d-inline-block align-text-top">
-        </a>
-        <div class="user-section">
-            <span class="username"><?php echo $nombre, " ", $apellido ?></span>
-            <div class="config-dropdown">
-                <button class="config-btn">
-                    <i class="fas fa-cog"></i>
-                </button>
-                <div class="config-menu">
-                    <a href="#" class="config-item">
-                        <i class="fas fa-bell"></i>
-                        Notificaciones
-                    </a>
-                    <a href="#" class="config-item">
-                        <i class="fas fa-key"></i>
-                        Cambiar Contraseña
-                    </a>
-                    <a href="salir.php" class="config-item">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Cerrar Sesión
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include('barra.php'); ?>
 
     <div class="main-content">
         <div class="form-container">
             <h2>Crear Nueva Solicitud</h2>
-            <form id="requestForm" class="request-form">
+            <form id="requestForm" class="request-form" method="POST" action="../control/guardarSolicitud.php" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="title">Título del Requerimiento</label>
                     <input type="text" id="title" name="title" required>
                 </div>
 
+
+
                 <div class="form-group">
                     <label for="location">Ubicación</label>
                     <select id="location" name="location" required>
                         <option value="">Seleccione ubicación</option>
-                        <option value="bodega1">Bodega 1</option>
-                        <option value="bodega2">Bodega 2</option>
-                        <option value="cdi">CDI</option>
-                        <option value="patioDemares">Patio Demares</option>
-                        <option value="patioSIX">Patio SIX</option>
-                        <option value="oficinaPrincipal">Oficina Principal</option>
-                        <option value="ces">CES</option>
-                        <option value="camarines">Camarines</option>
-                        <option value="gate">GATE</option>
+                        <?php
+                        require_once "../control/query.php";
+                        $contiene = new query();
+                        $lista = $contiene->Ubicacion();
+                        foreach ($lista as $fila) {
+                        ?>
+                            <option value="<?php echo $fila["idUbicacion"] ?>">
+                                <?php echo $fila["NombreUbicacion"] ?></option>
+                        <?php } ?>
                     </select>
                 </div>
 
@@ -87,22 +58,21 @@ $apellido = $_SESSION["Apellido"];
                     <label for="category">Categoría</label>
                     <select id="category" name="category" required>
                         <option value="">Seleccione categoría</option>
-                        <option value="infraestructura">Infraestructura</option>
-                        <option value="patio">Patio</option>
-                        <option value="electricidad">Electricidad</option>
+                        <?php
+                        $lista = $contiene->Categoria();
+                        foreach ($lista as $fila) {
+                        ?>
+                            <option value="<?php echo $fila["idCategoria"] ?>">
+                                <?php echo $fila["NombreCategoria"] ?></option>
+                        <?php } ?>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="subcategory">Subcategoría</label>
                     <select id="subcategory" name="subcategory" required>
                         <option value="">Seleccione subcategoría</option>
-                        <option value="enchufe">Enchufe</option>
-                        <option value="iluminacion">Iluminación</option>
-                        <option value="otros">Otros</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="description">Descripción</label>
                     <textarea id="description" name="description" rows="5" required></textarea>
@@ -114,10 +84,12 @@ $apellido = $_SESSION["Apellido"];
                             <i class="fas fa-camera"></i> Tomar Fotografía
                         </button>
                         <button type="button" class="action-btn photo-btn" id="uploadPhotoBtn">
-                            <i class="fas fa-upload"></i> Subir Fotografía
+                            <i class="fas fa-upload"></i> Subir Fotografías
                         </button>
                     </div>
-                    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none">
+                    <input type="file" name="photos[]" id="photoInput" multiple accept="image/jpeg, image/png, image/gif" style="display: none">
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    <video id="cameraVideo" style="display: none;" autoplay></video>
                     <div id="photoPreview" class="photo-preview"></div>
                 </div>
 
@@ -132,86 +104,185 @@ $apellido = $_SESSION["Apellido"];
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const navbar = document.querySelector('.navbar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleBtn = document.querySelector('.toggle-btn');
-            const logoutBtn = document.querySelector('.logout-btn');
-
-            toggleBtn.addEventListener('click', () => {
-                navbar.classList.toggle('collapsed');
-                mainContent.classList.toggle('collapsed');
-            });
-
-            logoutBtn.addEventListener('click', () => {
-                alert('Sesión cerrada');
-            });
-
-            const form = document.getElementById('requestForm');
-            const photoInput = document.getElementById('photoInput');
             const takePhotoBtn = document.getElementById('takePhotoBtn');
             const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+            const photoInput = document.getElementById('photoInput');
             const photoPreview = document.getElementById('photoPreview');
+            const cameraCanvas = document.getElementById('cameraCanvas');
+            const cameraVideo = document.getElementById('cameraVideo');
+            const maxPhotos = 1; // Máximo de fotos permitidas
+            let photoCount = 0;
 
-            // Handle photo upload
+            // Abrir la cámara web
+            takePhotoBtn.addEventListener('click', async () => {
+                if (photoCount >= maxPhotos) {
+                    alert(`Solo puedes agregar hasta ${maxPhotos} fotos.`);
+                    return;
+                }
+
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: true
+                    });
+                    cameraVideo.srcObject = stream;
+                    cameraVideo.style.display = "block";
+                    cameraCanvas.style.display = "none";
+                } catch (err) {
+                    alert("No se puede acceder a la cámara: " + err.message);
+                }
+            });
+
+            // Capturar foto desde la cámara
+            cameraVideo.addEventListener('click', () => {
+                if (photoCount >= maxPhotos) {
+                    alert(`Solo puedes agregar hasta ${maxPhotos} fotos.`);
+                    return;
+                }
+
+                const context = cameraCanvas.getContext('2d');
+                cameraCanvas.width = cameraVideo.videoWidth;
+                cameraCanvas.height = cameraVideo.videoHeight;
+                context.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+
+                const photoData = cameraCanvas.toDataURL('image/png');
+                addPhotoToPreview(photoData);
+
+                photoCount++;
+                cameraVideo.style.display = "none";
+                cameraCanvas.style.display = "block";
+            });
+
+            // Subir fotos desde la galería
             uploadPhotoBtn.addEventListener('click', () => {
+                if (photoCount >= maxPhotos) {
+                    alert(`Solo puedes agregar hasta ${maxPhotos} fotos.`);
+                    return;
+                }
                 photoInput.click();
             });
 
-            // Handle take photo
-            takePhotoBtn.addEventListener('click', () => {
-                photoInput.setAttribute('capture', 'environment');
-                photoInput.click();
-            });
-
-            // Preview uploaded photo
+            // Vista previa de las fotos seleccionadas
             photoInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
+                const files = e.target.files;
+
+                if (photoCount + files.length > maxPhotos) {
+                    alert(`Solo puedes agregar hasta ${maxPhotos} fotos en total.`);
+                    return;
+                }
+
+                Array.from(files).forEach((file) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        photoPreview.innerHTML = '';
-                        photoPreview.appendChild(img);
+                        addPhotoToPreview(e.target.result);
+                        photoCount++;
                     };
                     reader.readAsDataURL(file);
-                }
+                });
             });
 
-            // Form submission
-            form.addEventListener('submit', (e) => {
+            // Agregar fotos a la vista previa
+            function addPhotoToPreview(photoData) {
+                const photoContainer = document.createElement('div');
+                photoContainer.classList.add('photo-container');
+
+                const img = document.createElement('img');
+                img.src = photoData;
+                img.alt = `Foto ${photoCount + 1}`;
+                img.style.margin = "5px";
+                img.style.maxWidth = "300px";
+                img.style.maxHeight = "100px";
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Eliminar';
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    photoPreview.removeChild(photoContainer);
+                    photoCount--;
+                });
+
+                photoContainer.appendChild(img);
+                photoContainer.appendChild(deleteBtn);
+                photoPreview.appendChild(photoContainer);
+            }
+        });
+        
+        // Handle config menu items
+        document.querySelectorAll('.config-item').forEach(item => {
+            item.addEventListener('click', function(e) {
                 e.preventDefault();
-                const formData = new FormData(form);
-                // Here you would typically send the form data to your server
-                console.log('Form submitted:', Object.fromEntries(formData));
-                alert('Solicitud guardada exitosamente');
-            });
+                const action = this.textContent.trim();
 
-            // Dynamic subcategories based on category
-            const category = document.getElementById('category');
-            const subcategory = document.getElementById('subcategory');
-
-            const subcategories = {
-                'electricidad': ['Enchufe', 'Iluminación', 'Tablero Eléctrico', 'Cableado'],
-                'infraestructura': ['Paredes', 'Techo', 'Puertas', 'Ventanas'],
-                'patio': ['Pavimento', 'Señalización', 'Drenaje', 'Iluminación Exterior']
-            };
-
-            category.addEventListener('change', () => {
-                const selected = category.value;
-                subcategory.innerHTML = '<option value="">Seleccione subcategoría</option>';
-
-                if (selected && subcategories[selected]) {
-                    subcategories[selected].forEach(sub => {
-                        const option = document.createElement('option');
-                        option.value = sub.toLowerCase();
-                        option.textContent = sub;
-                        subcategory.appendChild(option);
-                    });
+                switch (action) {
+                    case 'Notificaciones':
+                        alert('Configuración de notificaciones');
+                        break;
+                    case 'Cambiar Contraseña':
+                        alert('Cambiar contraseña');
+                        break;
+                    case 'Cerrar Sesión':
+                        window.location.href = '../salir.php';
+                        break;
                 }
+
+                configDropdown.classList.remove('active');
             });
         });
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('category');
+            const subcategorySelect = document.getElementById('subcategory');
+
+            categorySelect.addEventListener('change', function() {
+                const categoryId = this.value;
+                fetchSubcategories(categoryId);
+            });
+
+            function fetchSubcategories(categoryId) {
+                fetch('get_subcategories.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'category_id=' + categoryId
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        subcategorySelect.innerHTML = data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching subcategories:', error);
+                        subcategorySelect.innerHTML = '<option>Error loading subcategories</option>';
+                    });
+            }
+        });
     </script>
+
+    <style>
+        .photo-container {
+            display: inline-block;
+            position: relative;
+
+        }
+
+        .photo-container img {
+            display: block;
+            /* width: auto;*/
+            /* Ajusta automáticamente el ancho para mantener la relación de aspecto */
+            max-width: 900px;
+            /* Aumenta el ancho máximo */
+            max-height: 600px;
+            /* Aumenta la altura máxima */
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </body>
 
 </html>

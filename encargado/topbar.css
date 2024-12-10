@@ -1,0 +1,92 @@
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 100;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: #455a64;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.user-section {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.username {
+    font-weight: 500;
+}
+
+.config-dropdown {
+    position: relative;
+}
+
+.config-btn {
+    background: none;
+    border: none;
+    color: #455a64;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.config-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.config-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    padding: 0.5rem 0;
+    display: none;
+    z-index: 1000;
+}
+
+.config-dropdown.active .config-menu {
+    display: block;
+}
+
+.config-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--dark);
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    gap: 0.75rem;
+}
+
+.config-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.config-item i {
+    width: 20px;
+}

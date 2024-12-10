@@ -23,9 +23,9 @@
                 Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.
             </div>
             <?php endif; ?>
-            <form id="loginForm" method="post" action="controlLogin/controlador_login.php" onsubmit="return validarFormulario()">
+            <form id="loginForm" method="post" action="control/controlador_login.php" onsubmit="return validarFormulario()">
                 <img src="img/avatar.svg">
-                <h2 class="title">BIENVENIDOd</h2>
+                <h2 class="title">BIENVENIDO</h2>
                 <div class="input-div one">
                     <div class="i">
                         <i class="fas fa-user"></i>
