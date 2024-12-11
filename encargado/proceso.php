@@ -414,7 +414,7 @@ $contiene = new query();
         <div class="request-list">
 
             <?php
-            $lista = $contiene->RequerimientosPendientes();
+            $lista = $contiene->RequerimientoEnProcesos();
             foreach ($lista as $fila) {
                 $fecha_str = $fila["fecha"];
                 $fecha = new DateTime($fecha_str);
@@ -449,29 +449,7 @@ $contiene = new query();
                 </div>
             <?php } ?>
 
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <div class="modal-header">
-                        <h2 class="modal-title"></h2>
-                    </div>
-                    <div class="modal-body">
-                        <div class="modal-details">
-                        </div>
-                        <div class="modal-description"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="action-btn btn-accept" data-id="">
-                            <i class="fas fa-check"></i> Aceptar
-                        </button>
-                        <button class="action-btn btn-reject" data-id="">
-                            <i class="fas fa-times"></i> Rechazar
-                        </button>
-                    </div>
-                </div>
-            </div>
+        
 
             <script>
                 document.addEventListener('DOMContentLoaded', () => {

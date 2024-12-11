@@ -41,7 +41,24 @@ class query
 
         return $resultados;
     }
+    public function Requerimiento($id)
+    {
 
+        $base = new db();
+        $sql_verificar = "select Titulo from requerimiento where  idRequerimiento=:id";
+
+        // Preparar la consulta utilizando la conexión de la clase db
+        $stmt = $base->conexion->prepare($sql_verificar);
+
+        // Asociar los parámetros a la consulta
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+
+        // Ejecutar la consulta
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $resultados;
+    }
     public function RequerimientosPendientes()
     {
 
@@ -70,7 +87,7 @@ class query
 
         return $resultados;
     }
-    
+
 
 
     public function Estados()
@@ -104,6 +121,28 @@ class query
         $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $resultados;
     }
+
+    public function ContarNuevos()
+    {
+
+        $base = new db();
+        $sql_verificar = "select count(*) as num_nuevos from requerimiento where Estados_idEstados =1";
+        $stmt = $base->conexion->prepare($sql_verificar);
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $resultados;
+    }
+    public function ContarProcesos()
+    {
+
+        $base = new db();
+        $sql_verificar = "select count(*) as num_procesos from requerimiento where Estados_idEstados in(2,3,4,5)";
+        $stmt = $base->conexion->prepare($sql_verificar);
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $resultados;
+    }
+    
     public function subCategoria($idCate)
     {
 
@@ -115,41 +154,81 @@ class query
         $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $resultados;
     }
+    public function cambioEstado($idestado,$idrequerimiento)
+    {
 
-    public function guardarSolicitud($titulo, $descripcion, $imagen, $idUsuario,
-    $idUbicacion, $idCategoria, $idSubcategoria)
-{
-    $base = new db();
-    $sql = "INSERT INTO requerimiento
+        $base = new db();
+        $sql_verificar = "update requerimiento set Estados_idEstados=:idestado where idRequerimiento=:idrequerimiento";
+        $stmt = $base->conexion->prepare($sql_verificar);
+        $stmt->bindParam(':idestado', $idestado, PDO::PARAM_STR);
+        $stmt->bindParam(':idrequerimiento', $idrequerimiento, PDO::PARAM_STR);
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $resultados;
+    }
+    public function RequerimientoEnProcesos()
+    {
+
+        $base = new db();
+        $sql_verificar = "select idrequerimiento, 
+                        Titulo,
+                        Descripcion,
+                        fecha,
+                        sc.NombreSub,
+                        es.NombreEstado, 
+                        Imagen,
+                        c.NombreCategoria,
+                        year(fecha) as ano
+                        from requerimiento r
+                        join estados es on es.idEstados= r.Estados_idEstados
+                        join subcategoria sc on sc.idSubCategoria=r.SubCategoria_idSubCategoria
+                        join categoria c on c.idCategoria=sc.Categoria_idCategoria
+                        where es.idEstados in(2,3,4,5)
+                        order by fecha desc";
+        $stmt = $base->conexion->prepare($sql_verificar);
+        $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $resultados;
+    }
+
+    public function guardarSolicitud(
+        $titulo,
+        $descripcion,
+        $imagen,
+        $idUsuario,
+        $idUbicacion,
+        $idCategoria,
+        $idSubcategoria
+    ) {
+        $base = new db();
+        $sql = "INSERT INTO requerimiento
             (Titulo, Descripcion, Imagen, fecha, Notificacion, Usuario_idUsuario, Estados_idEstados,
             Proveedor_idProveedor, Ubicacion_idUbicacion, SubCategoria_idSubCategoria, Categoria_idCategoria)
             VALUES
-            (:titulo, :descripcion, :imagen, NOW(), 1, :idUsuario, 1,
+            (:titulo, :descripcion, :imagen, NOW(), 1, :idUsuario,1,
             1, :idUbicacion, :idSubcategoria, :idCategoria)";
-    
-    try {
-        $stmt = $base->conexion->prepare($sql);
-        
-        // Enlazar los parámetros correctamente
-        $stmt->bindParam(':titulo', $titulo, PDO::PARAM_STR);
-        $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
-        $stmt->bindParam(':imagen', $imagen, PDO::PARAM_STR);
-        $stmt->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
-        $stmt->bindParam(':idUbicacion', $idUbicacion, PDO::PARAM_INT);
-        $stmt->bindParam(':idSubcategoria', $idSubcategoria, PDO::PARAM_INT);
-        $stmt->bindParam(':idCategoria', $idCategoria, PDO::PARAM_INT);
-        
-        $stmt->execute();
-        $base->conexion->commit();
-        
-        // Opcional: Verificar cuántas filas fueron afectadas
-        return $stmt->rowCount();
-        
-    } catch (PDOException $e) {
-        // Manejo del error
-        error_log("Error en guardarSolicitud: " . $e->getMessage());
-        return false;
-    }
-}
 
+        try {
+            $stmt = $base->conexion->prepare($sql);
+
+            // Enlazar los parámetros correctamente
+            $stmt->bindParam(':titulo', $titulo, PDO::PARAM_STR);
+            $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
+            $stmt->bindParam(':imagen', $imagen, PDO::PARAM_STR);
+            $stmt->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
+            $stmt->bindParam(':idUbicacion', $idUbicacion, PDO::PARAM_INT);
+            $stmt->bindParam(':idSubcategoria', $idSubcategoria, PDO::PARAM_INT);
+            $stmt->bindParam(':idCategoria', $idCategoria, PDO::PARAM_INT);
+
+            $stmt->execute();
+            $base->conexion->commit();
+
+            // Opcional: Verificar cuántas filas fueron afectadas
+            return $stmt->rowCount();
+        } catch (PDOException $e) {
+            // Manejo del error
+            error_log("Error en guardarSolicitud: " . $e->getMessage());
+            return false;
+        }
+    }
 }

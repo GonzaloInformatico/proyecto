@@ -246,43 +246,43 @@ body {
 }
 
 /* Pendiente */
-.status-Pendiente {
+.status-ingresado {
     background-color: #fff3e0;
     color: #e65100;
 }
 
 /* En proceso */
-.status-En_proceso {
+.status-en_proceso {
     background-color: #e3f2fd;
     color: #1565c0;
 }
 
 /* Cotizando */
-.status-Cotizando {
+.status-aprobado {
     background-color: #ede7f6;
     color: #512da8;
 }
 
 /* Cotizado */
-.status-Cotizado {
+.status-ejecucion  {
     background-color: #fce4ec;
     color: #d81b60;
 }
 
 /* En ejecución */
-.status-En_ejecución {
+.status-Validacion-final {
     background-color: #e8f5e9;
     color: #388e3c;
 }
 
 /* Pre-entrega */
-.status-Pre_entrega {
+.status-cerrado {
     background-color: #ffebee;
     color: #c62828;
 }
 
 /* En Evaluación */
-.status-En_Evaluación {
+.status-rechazado{
     background-color: #fff8e1;
     color: #ff8f00;
 }
